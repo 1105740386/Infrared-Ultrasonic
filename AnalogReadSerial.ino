@@ -18,7 +18,7 @@ int leds[3] = { 2, 3, 4 };
 IRrecv irrecv(PIN_RADAR);
 decode_results results;
 const String RADAR_OK = "111111110000001011111101";
-String oldRadarValue;
+String oldInfraredData;
 int relayState = 0;
 
 /**
@@ -41,11 +41,11 @@ void setup() {
  */
 void loop() {
 
-	String currentRadarValue = getInfraredData();
+	String currentInfraredData = getInfraredData();
 
 	unsigned long distance = getUltrasonicData();
 
-	controlMotorWithInfraredSignal(currentRadarValue);
+	controlMotorWithInfraredSignal(currentInfraredData);
 	controlMotorWithUltrasonicSignal(distance);
 
 	for (int i = 0; i <= 2; i++) {
@@ -59,15 +59,15 @@ void loop() {
 /**
  * 用红外信号控制继电器，按下OK开启接通继电器，启动马达
  */
-void controlMotorWithInfraredSignal(String currentRadarValue) {
-	if (currentRadarValue.equals(RADAR_OK) && !oldRadarValue.equals(RADAR_OK)) {
+void controlMotorWithInfraredSignal(String currentInfraredData) {
+	if (currentInfraredData.equals(RADAR_OK) && !oldInfraredData.equals(RADAR_OK)) {
 		relayState = 1 - relayState;
 		delay(100);
 	}
 
-	oldRadarValue = currentRadarValue;
-	Serial.print("oldRadarValue = ");
-	Serial.println(oldRadarValue);
+	oldInfraredData = currentInfraredData;
+	Serial.print("oldInfraredData = ");
+	Serial.println(oldInfraredData);
 
 	if (relayState == 1) {
 		digitalWrite(PIN_RELAY, LOW);
@@ -82,6 +82,7 @@ void controlMotorWithInfraredSignal(String currentRadarValue) {
 void controlMotorWithUltrasonicSignal(unsigned long distance) {
 
 	int relayVoltage = digitalRead(PIN_RELAY);
+
 	Serial.print("relayVoltage = ");
 	Serial.println(relayVoltage);
 
